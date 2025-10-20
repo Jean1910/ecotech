@@ -103,14 +103,9 @@
     .sheet .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
 
     /* TOAST centralizado */
-    .toast{
-      position:fixed; inset:0; z-index:80; display:none; place-items:center; background:rgba(0,0,0,.25);
-    }
+    .toast{ position:fixed; inset:0; z-index:80; display:none; place-items:center; background:rgba(0,0,0,.25); }
     .toast.open{ display:grid; }
-    .toast .bubble{
-      background:#ffffff; border-top:6px solid var(--secondary); box-shadow:var(--shadow);
-      padding:18px 20px; border-radius:16px; min-width:320px; max-width:90vw; text-align:left; animation:pop .22s ease-out;
-    }
+    .toast .bubble{ background:#ffffff; border-top:6px solid var(--secondary); box-shadow:var(--shadow); padding:18px 20px; border-radius:16px; min-width:320px; max-width:90vw; text-align:left; animation:pop .22s ease-out; }
     .bubble .ok{font-size:24px;color:var(--primary)}
     .bubble h5{margin-bottom:2px}
     .bubble p{color:#4a5b57}
@@ -354,11 +349,11 @@
     </div>
   </div>
 
-  <!-- ===== Modal: Acesso (Login ou Cadastro) ===== -->
+  <!-- ===== Modal: Acesso (Login ou Cadastro) — ATUALIZADO ===== -->
   <div class="modal" id="modal-acesso" role="dialog" aria-modal="true" aria-labelledby="acesso-title">
     <div class="sheet">
       <h3 id="acesso-title">Acessar a Plataforma</h3>
-      <p class="hint">Faça login com seu e-mail já cadastrado ou crie sua conta gratuitamente.</p>
+      <p class="hint">Faça login com seu e-mail e senha, ou crie sua conta gratuitamente.</p>
 
       <div class="auth-tabs" role="tablist" aria-label="Escolha uma opção">
         <button class="auth-tab active" data-auth="entrar" role="tab" aria-selected="true"><i class="ri-login-circle-line"></i> Entrar</button>
@@ -371,12 +366,16 @@
           <label for="login_email">E-mail</label>
           <input id="login_email" name="email" type="email" placeholder="email@exemplo.com" required />
         </div>
-        <p class="hint">Dica: se já se cadastrou, use o mesmo e-mail.</p>
+        <div class="field">
+          <label for="login_senha">Senha</label>
+          <input id="login_senha" name="senha" type="password" placeholder="••••••••" minlength="6" required />
+        </div>
+        <p class="hint">Dica: se já se cadastrou, use o mesmo e-mail e senha.</p>
         <div class="actions">
           <button type="button" class="btn" id="cancelar-acesso-1">Cancelar</button>
           <button type="submit" class="btn btn-primary"><i class="ri-login-box-line"></i> Entrar</button>
         </div>
-        <p id="login-erro" class="error" style="display:none">E-mail não encontrado. Tente novamente ou cadastre-se.</p>
+        <p id="login-erro" class="error" style="display:none">E-mail ou senha incorretos. Tente novamente.</p>
       </form>
 
       <!-- Cadastrar -->
@@ -393,10 +392,19 @@
           <label for="cad_cidade">Cidade</label>
           <input id="cad_cidade" name="cidade" placeholder="Sua cidade" />
         </div>
+        <div class="field">
+          <label for="cad_senha">Senha</label>
+          <input id="cad_senha" name="senha" type="password" placeholder="Mínimo 6 caracteres" minlength="6" required />
+        </div>
+        <div class="field">
+          <label for="cad_confirma">Confirmar senha</label>
+          <input id="cad_confirma" name="confirma" type="password" placeholder="Repita a senha" minlength="6" required />
+        </div>
         <div class="actions">
           <button type="button" class="btn" id="cancelar-acesso-2">Cancelar</button>
           <button type="submit" class="btn btn-primary"><i class="ri-user-follow-line"></i> Criar conta</button>
         </div>
+        <p id="cad-erro" class="error" style="display:none">As senhas não conferem. Verifique e tente novamente.</p>
         <p class="hint">Após criar a conta, você poderá enviar um e-mail à equipe para formalizar a participação.</p>
       </form>
     </div>
@@ -559,12 +567,19 @@
     const modalEdu = $('#modal-edu');
     const modalAcesso = $('#modal-acesso');
 
+    /* === Util: hash SHA-256 para senha (armazenar hash, não texto puro) === */
+    async function sha256Hex(text){
+      const enc = new TextEncoder().encode(text);
+      const buf = await crypto.subtle.digest('SHA-256', enc);
+      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
     // ===== Plataforma exige login/cadastro =====
     $('#btn-plataforma').addEventListener('click', ()=>{
-      // Preenche e alterna para a aba "Entrar" por padrão
       switchAuthTab('entrar');
       const user = JSON.parse(localStorage.getItem('ecotech_user')||'{}');
       if(user.email){ $('#login_email').value = user.email; }
+      const senhaInput = $('#login_senha'); if(senhaInput) senhaInput.value = '';
       open(modalAcesso);
     });
 
@@ -583,38 +598,65 @@
       }else{
         $('#form-entrar').classList.add('active');
       }
+      const le = $('#login-erro'); if(le) le.style.display='none';
+      const ce = $('#cad-erro');   if(ce) ce.style.display='none';
     }
     // Cancelar
     $('#cancelar-acesso-1').addEventListener('click', ()=> close(modalAcesso));
     $('#cancelar-acesso-2').addEventListener('click', ()=> close(modalAcesso));
 
-    // Login simples por e-mail
-    $('#form-entrar').addEventListener('submit', (e)=>{
+    // ===== LOGIN: e-mail + senha (com hash) =====
+    $('#form-entrar').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const email = e.target.email.value.trim().toLowerCase();
+      const senha = e.target.senha.value;
       const saved = JSON.parse(localStorage.getItem('ecotech_user')||'{}');
       const erro = $('#login-erro');
-      if(saved.email && saved.email.toLowerCase() === email){
+
+      if(!saved.email || !saved.passHash){
+        erro.textContent = 'Nenhuma conta encontrada. Cadastre-se primeiro.';
+        erro.style.display = 'block';
+        return;
+      }
+      const tryHash = await sha256Hex(senha);
+      if(saved.email.toLowerCase() === email && saved.passHash === tryHash){
         close(modalAcesso);
         setToast('Login realizado','Bem-vindo de volta!');
         toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1000);
         showApp();
       }else{
+        erro.textContent='E-mail ou senha incorretos. Tente novamente.';
         erro.style.display='block';
       }
     });
 
-    // Cadastro pelo modal de acesso
-    $('#form-cadastrar').addEventListener('submit', (e)=>{
+    // ===== CADASTRO: nome, e-mail, cidade, senha =====
+    $('#form-cadastrar').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const nome = e.target.nome.value.trim();
       const email = e.target.email.value.trim();
       const cidade = e.target.cidade.value.trim();
-      localStorage.setItem('ecotech_user', JSON.stringify({nome,email,cidade}));
-      // Pré-preenche o e-mail para o contato à equipe
+      const senha = e.target.senha.value;
+      const confirma = e.target.confirma.value;
+      const erro = $('#cad-erro');
+
+      if(senha.length < 6){
+        erro.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        erro.style.display = 'block';
+        return;
+      }
+      if(senha !== confirma){
+        erro.textContent = 'As senhas não conferem. Verifique e tente novamente.';
+        erro.style.display = 'block';
+        return;
+      }
+      erro.style.display = 'none';
+      const passHash = await sha256Hex(senha);
+      localStorage.setItem('ecotech_user', JSON.stringify({nome,email,cidade,passHash}));
+
+      // Pré-preenche o e-mail para o contato à equipe (fluxo existente)
       $('#mensagem').value = `Olá, sou ${nome} (${email}, ${cidade}). Quero apoiar o EcoTech na minha região.`;
       close(modalAcesso);
-      // Abre o modal de e-mail (história sprint 2/3)
       open(modalEmail);
     });
 
@@ -624,7 +666,7 @@
     $('#btn-ghost-participe').addEventListener('click', openCadastro);
     $('#close-cadastro').addEventListener('click', ()=> close(modalCadastro));
 
-    // Cadastro -> Email (CTA)
+    // Cadastro -> Email (CTA antigo)
     $('#form-cadastro').addEventListener('submit', (e)=>{
       e.preventDefault();
       const nome = e.target.nome.value.trim();
@@ -688,6 +730,9 @@
         email: e.target.email.value.trim(),
         cidade: e.target.cidade.value.trim()
       };
+      // preserva passHash se existir
+      const prev = JSON.parse(localStorage.getItem('ecotech_user')||'{}');
+      if(prev.passHash) user.passHash = prev.passHash;
       localStorage.setItem('ecotech_user', JSON.stringify(user));
       close(modalPerfil);
       setToast('Perfil atualizado','Suas informações foram salvas.');
@@ -838,9 +883,9 @@
     function getInscr(){ try{ return JSON.parse(localStorage.getItem(INSCR_KEY)||'[]'); }catch{ return []; } }
     function setInscr(arr){ localStorage.setItem(INSCR_KEY, JSON.stringify(arr)); renderInscricoes(); }
     function renderInscricoes(){
-    const n = getInscr().length;
-    const el = document.querySelector('#status-inscricoes');
-    if(el){ el.textContent = `${n} ${n === 1 ? 'inscrição' : 'inscrições'}`; }
+      const n = getInscr().length;
+      const el = document.querySelector('#status-inscricoes');
+      if(el){ el.textContent = `${n} ${n === 1 ? 'inscrição' : 'inscrições'}`; }
     }
     $('#lista-eventos')?.addEventListener('click', (e)=>{
       const btn = e.target.closest('[data-evento]');
