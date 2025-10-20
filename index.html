@@ -65,15 +65,6 @@
     .icon-circle{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent),#e8f5e9);margin-bottom:12px}
     .card h3{color:var(--primary);margin:6px 0 6px}
     .card p{color:#40514e}
-    /* Thumb da seção Pilares (novo) */
-    .pilar-thumb{
-      width:100%;
-      height:160px;
-      object-fit:cover;
-      border-radius:14px;
-      margin-bottom:12px;
-      box-shadow:0 6px 20px rgba(0,0,0,.08);
-    }
 
     /* Como funciona */
     .steps{background:#e8f5e9;border-radius:var(--radius);padding:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px}
@@ -98,9 +89,9 @@
     .social a:hover{opacity:1}
 
     /* ===== Modals & Toast ===== */
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.5);z-index:60}
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.5);z-index:60;padding:16px}
     .modal.open{display:grid}
-    .sheet{background:#fff;border-radius:20px;max-width:560px;width:92vw;padding:22px 22px 18px;box-shadow:var(--shadow)}
+    .sheet{background:#fff;border-radius:20px;max-width:640px;width:100%;padding:22px 22px 18px;box-shadow:var(--shadow)}
     .sheet h3{margin-bottom:4px}
     .sheet p{color:#4a5b57;margin-bottom:14px}
     .grid{display:grid;gap:12px}
@@ -109,38 +100,23 @@
     .field textarea{min-height:110px;resize:vertical}
     .sheet .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
 
-    /* TOAST centralizado (atualizado) */
+    /* TOAST centralizado */
     .toast{
-      position:fixed;
-      inset:0;
-      z-index:80;
-      display:none;
-      place-items:center;
-      background:rgba(0,0,0,.25);
+      position:fixed; inset:0; z-index:80; display:none; place-items:center; background:rgba(0,0,0,.25);
     }
     .toast.open{ display:grid; }
     .toast .bubble{
-      background:#ffffff;
-      border-top:6px solid var(--secondary);
-      box-shadow:var(--shadow);
-      padding:18px 20px;
-      border-radius:16px;
-      min-width:320px;
-      max-width:90vw;
-      text-align:left;
-      animation:pop .22s ease-out;
+      background:#ffffff; border-top:6px solid var(--secondary); box-shadow:var(--shadow);
+      padding:18px 20px; border-radius:16px; min-width:320px; max-width:90vw; text-align:left; animation:pop .22s ease-out;
     }
     .bubble .ok{font-size:24px;color:var(--primary)}
     .bubble h5{margin-bottom:2px}
     .bubble p{color:#4a5b57}
-    @keyframes pop{
-      from{ transform:scale(.94); opacity:0; }
-      to{ transform:scale(1); opacity:1; }
-    }
+    @keyframes pop{ from{ transform:scale(.94); opacity:0; } to{ transform:scale(1); opacity:1; } }
 
     /* ===== App (pós-login) ===== */
     .app{display:none;min-height:100dvh;padding-top:92px}
-    .app-header{background:#fff;box-shadow:var(--shadow);border-radius:var(--radius);padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .app-header{background:#fff;box-shadow:var(--shadow);border-radius:var(--radius);padding:16px;display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap}
     .tabs{display:flex;gap:8px;flex-wrap:wrap}
     .tab{padding:10px 14px;border-radius:999px;background:#e8f5e9;color:#0f2d20;font-weight:700;cursor:pointer;border:2px solid transparent}
     .tab.active{background:#fff;border-color:#cfe8d3;color:var(--primary);box-shadow:var(--shadow)}
@@ -148,7 +124,14 @@
     .views>section.active{display:block}
 
     .edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-    .edu-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:18px}
+    .edu-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:18px;display:grid;gap:8px}
+    .edu-card button{justify-self:start}
+
+    /* Minhas Hortas */
+    .hortas{display:grid;gap:12px}
+    .horta-item{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+    .horta-item small{color:#607d71}
+    .pill{background:#e8f5e9;color:var(--primary);border-radius:999px;padding:6px 10px;font-weight:700}
   </style>
 </head>
 <body>
@@ -191,7 +174,7 @@
       <h2>Nossos Pilares</h2>
       <p class="lead">Três frentes integradas que, juntas, elevam a qualidade de vida e o capital social local.</p>
       <div class="pilares">
-        <!-- Gestão de Resíduos COM IMAGEM -->
+        <!-- Gestão de Resíduos -->
         <article class="card">
           <span class="badge">Resíduos</span>
           <div class="icon-circle"><i class="ri-recycle-line"></i></div>
@@ -270,43 +253,83 @@
           <strong>EcoTech • Plataforma</strong>
         </div>
         <div class="tabs" role="tablist">
-          <button class="tab active" data-view="explore" role="tab">Explore</button>
-          <button class="tab" data-view="conecte" role="tab">Conecte-se</button>
-          <button class="tab" data-view="participe" role="tab">Participe</button>
+          <button class="tab active" data-view="explore" role="tab" aria-selected="true">Explore</button>
+          <button class="tab" data-view="conecte" role="tab" aria-selected="false">Conecte-se</button>
+          <button class="tab" data-view="participe" role="tab" aria-selected="false">Participe</button>
         </div>
+        <!-- Sprint 4: Perfil do Usuário -->
+        <button class="btn btn-ghost" id="btn-perfil" title="Editar perfil"><i class="ri-user-3-line"></i> Perfil</button>
       </div>
 
       <div class="views">
         <!-- Explore -->
-        <section id="view-explore" class="active">
+        <section id="view-explore" class="active" aria-labelledby="tab-explore">
           <h2>Explore</h2>
           <p class="lead" style="margin-bottom:14px">Acesse conteúdos educativos sobre reciclagem, cultivo e alimentação.</p>
           <div class="edu-grid">
-            <article class="edu-card"><h4>Guia prático de separação</h4><p>Checklist doméstico e calendário de coleta seletiva.</p></article>
-            <article class="edu-card"><h4>Composteira caseira</h4><p>Passo a passo com materiais acessíveis.</p></article>
-            <article class="edu-card"><h4>Horta em pequenos espaços</h4><p>Técnicas de vasos, jardineiras e luz indireta.</p></article>
-            <article class="edu-card"><h4>Aproveitamento integral</h4><p>Receitas com talos, cascas e sementes.</p></article>
+            <article class="edu-card">
+              <h4>Guia prático de separação</h4>
+              <p>Checklist doméstico e calendário de coleta seletiva.</p>
+              <button class="btn btn-primary" data-edu="separacao"><i class="ri-file-list-line"></i> Abrir guia</button>
+            </article>
+            <article class="edu-card">
+              <h4>Composteira caseira</h4>
+              <p>Passo a passo com materiais acessíveis.</p>
+              <button class="btn btn-primary" data-edu="composteira"><i class="ri-leaf-line"></i> Ver passo a passo</button>
+            </article>
+            <article class="edu-card">
+              <h4>Horta em pequenos espaços</h4>
+              <p>Técnicas de vasos, jardineiras e luz indireta.</p>
+              <button class="btn btn-primary" data-edu="horta-pequena"><i class="ri-seedling-line"></i> Ver técnicas</button>
+            </article>
+            <article class="edu-card">
+              <h4>Aproveitamento integral</h4>
+              <p>Receitas com talos, cascas e sementes.</p>
+              <button class="btn btn-primary" data-edu="aproveitamento"><i class="ri-restaurant-line"></i> Ver receitas</button>
+            </article>
           </div>
         </section>
 
         <!-- Conecte-se -->
-        <section id="view-conecte">
+        <section id="view-conecte" aria-labelledby="tab-conecte">
           <h2>Conecte-se</h2>
           <p class="lead" style="margin-bottom:14px">Encontre hortas comunitárias e pontos de coleta próximos de você.</p>
-          <div class="edu-grid">
+
+          <!-- Sprint 4: Minhas Hortas -->
+          <h3 style="margin:8px 0 10px">Minhas Hortas</h3>
+          <form id="form-horta" class="grid" style="grid-template-columns:1fr 1fr auto">
+            <input class="field" style="padding:12px 14px;border-radius:12px;border:1.6px solid #e3efe6" name="nome" placeholder="Nome da horta" required />
+            <input class="field" style="padding:12px 14px;border-radius:12px;border:1.6px solid #e3efe6" name="bairro" placeholder="Bairro / Cidade" required />
+            <button class="btn btn-primary" type="submit"><i class="ri-add-circle-line"></i> Adicionar</button>
+          </form>
+
+          <div class="hortas" id="lista-hortas" aria-live="polite" style="margin-top:12px">
+            <!-- itens renderizados via JS -->
+          </div>
+
+          <div class="edu-grid" style="margin-top:18px">
             <article class="edu-card"><h4>Mapa colaborativo</h4><p>Em breve: cadastre e descubra iniciativas no seu bairro.</p></article>
             <article class="edu-card"><h4>Parcerias locais</h4><p>ONGs, escolas e associações de bairro.</p></article>
           </div>
         </section>
 
         <!-- Participe -->
-        <section id="view-participe">
+        <section id="view-participe" aria-labelledby="tab-participe">
           <h2>Participe</h2>
           <p class="lead" style="margin-bottom:14px">Junte-se a eventos, oficinas e ações para fortalecer sua comunidade.</p>
-          <div class="edu-grid">
-            <article class="edu-card"><h4>Mutirão de limpeza</h4><p>Sábado, 9h, Parque Central. Traga luvas e energia!</p></article>
-            <article class="edu-card"><h4>Oficina de compostagem</h4><p>Domingo, 10h, Centro Cultural. Vagas limitadas.</p></article>
+          <div class="edu-grid" id="lista-eventos">
+            <article class="edu-card">
+              <h4>Mutirão de limpeza</h4>
+              <p>Sábado, 9h, Parque Central. Traga luvas e energia!</p>
+              <button class="btn btn-primary" data-evento="mutirao"><i class="ri-hand-heart-line"></i> Quero participar</button>
+            </article>
+            <article class="edu-card">
+              <h4>Oficina de compostagem</h4>
+              <p>Domingo, 10h, Centro Cultural. Vagas limitadas.</p>
+              <button class="btn btn-primary" data-evento="compostagem"><i class="ri-earth-line"></i> Quero participar</button>
+            </article>
           </div>
+          <p style="margin-top:8px"><span class="pill" id="status-inscricoes" aria-live="polite">0 inscrições</span></p>
         </section>
       </div>
     </div>
@@ -364,13 +387,51 @@
     </div>
   </div>
 
+  <!-- ===== Modal: Perfil (Sprint 4) ===== -->
+  <div class="modal" id="modal-perfil" role="dialog" aria-modal="true" aria-labelledby="perfil-title">
+    <div class="sheet">
+      <h3 id="perfil-title">Seu Perfil</h3>
+      <p>Edite suas informações para manter seu cadastro atualizado.</p>
+      <form id="form-perfil" class="grid" autocomplete="on">
+        <div class="field">
+          <label for="p_nome">Nome</label>
+          <input id="p_nome" name="nome" placeholder="Seu nome" required />
+        </div>
+        <div class="field">
+          <label for="p_email">E-mail</label>
+          <input id="p_email" name="email" type="email" placeholder="email@exemplo.com" required />
+        </div>
+        <div class="field">
+          <label for="p_cidade">Cidade</label>
+          <input id="p_cidade" name="cidade" placeholder="Sua cidade" />
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" id="fechar-perfil">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="ri-save-3-line"></i> Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Conteúdos Educativos (Explore) ===== -->
+  <div class="modal" id="modal-edu" role="dialog" aria-modal="true" aria-labelledby="edu-title">
+    <div class="sheet">
+      <h3 id="edu-title">Conteúdo</h3>
+      <div id="edu-body" class="grid" style="gap:8px"></div>
+      <div class="actions">
+        <button type="button" class="btn" id="fechar-edu">Fechar</button>
+        <button type="button" class="btn btn-primary" id="baixar-edu"><i class="ri-download-2-line"></i> Baixar .txt</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast de sucesso (centralizado) -->
   <div class="toast" id="toast">
     <div class="bubble">
       <i class="ri-checkbox-circle-line ok" aria-hidden="true"></i>
       <div>
-        <h5>Envio confirmado</h5>
-        <p>Obrigado por participar! Em instantes você será redirecionado para a plataforma.</p>
+        <h5 id="toast-title">Ação confirmada</h5>
+        <p id="toast-msg">Tudo certo!</p>
       </div>
     </div>
   </div>
@@ -387,11 +448,13 @@
   </footer>
 
   <script>
-    // ===== Util =====
+    // ===== Helpers =====
     const $ = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+    const open = (m)=>m.classList.add('open');
+    const close = (m)=>m.classList.remove('open');
 
-    // ===== Smooth scroll from anchor links =====
+    // ===== Smooth scroll =====
     $$('a[href^="#"]').forEach(a=>{
       a.addEventListener('click', e=>{
         const id=a.getAttribute('href');
@@ -400,31 +463,32 @@
           if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
         }
       })
-    })
+    });
 
-    // ===== PARTICIPE fluxos =====
+    // ===== Modais base =====
     const modalCadastro = $('#modal-cadastro');
     const modalEmail = $('#modal-email');
+    const modalPerfil = $('#modal-perfil');
+    const modalEdu = $('#modal-edu');
     const toast = $('#toast');
+    const setToast = (title,msg)=>{ $('#toast-title').textContent=title; $('#toast-msg').textContent=msg; };
 
-    const open = (m)=>m.classList.add('open');
-    const close = (m)=>m.classList.remove('open');
-
+    // Botões abrir/fechar
     const openCadastro = ()=> open(modalCadastro);
     $('#btn-participe').addEventListener('click', openCadastro);
     $('#btn-ghost-participe').addEventListener('click', openCadastro);
     $('#close-cadastro').addEventListener('click', ()=> close(modalCadastro));
 
-    // Cadastro -> Email
+    // ===== Cadastro -> Email =====
     $('#form-cadastro').addEventListener('submit', (e)=>{
       e.preventDefault();
       const nome = e.target.nome.value.trim();
       const email = e.target.email.value.trim();
-      localStorage.setItem('ecotech_user', JSON.stringify({nome,email}));
+      const cidade = e.target.cidade.value.trim();
+      const user = { nome, email, cidade };
+      localStorage.setItem('ecotech_user', JSON.stringify(user));
       close(modalCadastro);
-      // pré-preenche mensagem
-      const msg = `Olá, sou ${nome} (${email}). Quero apoiar o EcoTech na minha região.`;
-      $('#mensagem').value = msg;
+      $('#mensagem').value = `Olá, sou ${nome} (${email}, ${cidade}). Quero apoiar o EcoTech na minha região.`;
       open(modalEmail);
     });
 
@@ -436,40 +500,251 @@
       const to = e.target.to.value;
       const subject = encodeURIComponent(e.target.assunto.value);
       const body = encodeURIComponent(e.target.mensagem.value);
-      // Abre cliente de e-mail do usuário
       window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-
       close(modalEmail);
+      setToast('Envio confirmado','Obrigado por participar! Redirecionando para a plataforma…');
       toast.classList.add('open');
-      setTimeout(()=>{ toast.classList.remove('open'); entrarNaPlataforma(); }, 1600);
+      setTimeout(()=>{ toast.classList.remove('open'); entrarNaPlataforma(); }, 1400);
     });
 
     function entrarNaPlataforma(){
-      // Alterna para o app pós-login
       document.getElementById('site').style.display='none';
       document.getElementById('app').style.display='block';
       window.scrollTo({top:0, behavior:'smooth'});
+      carregarPerfil(); // popula o perfil logo ao entrar
+      renderHortas();
+      renderInscricoes();
     }
-
-    // ===== Tabs do App =====
-    $$('.tab').forEach(tab=>{
-      tab.addEventListener('click', ()=>{
-        $$('.tab').forEach(t=>t.classList.remove('active'));
-        tab.classList.add('active');
-        const view = tab.dataset.view;
-        $$('.views>section').forEach(s=>s.classList.remove('active'));
-        const id = view==='explore'?'view-explore':(view==='conecte'?'view-conecte':'view-participe');
-        document.getElementById(id).classList.add('active');
-      })
-    })
 
     // ===== Header shadow on scroll =====
     const header = document.querySelector('.header');
     window.addEventListener('scroll', ()=>{
       header.style.boxShadow = window.scrollY>24 ? '0 8px 24px rgba(0,0,0,.08)' : '0 2px 10px rgba(0,0,0,.06)';
     });
+
+    // ===== Tabs do App =====
+    $$('.tab').forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        $$('.tab').forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+        const view = tab.dataset.view;
+        $$('.views>section').forEach(s=>s.classList.remove('active'));
+        const id = view==='explore'?'view-explore':(view==='conecte'?'view-conecte':'view-participe');
+        document.getElementById(id).classList.add('active');
+      })
+    });
+
+    // ===== Sprint 4: Perfil do Usuário =====
+    $('#btn-perfil').addEventListener('click', ()=>{
+      carregarPerfil();
+      open(modalPerfil);
+    });
+    $('#fechar-perfil').addEventListener('click', ()=> close(modalPerfil));
+
+    function carregarPerfil(){
+      const user = JSON.parse(localStorage.getItem('ecotech_user')||'{}');
+      $('#p_nome').value = user.nome||'';
+      $('#p_email').value = user.email||'';
+      $('#p_cidade').value = user.cidade||'';
+    }
+    $('#form-perfil').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const user = {
+        nome: e.target.nome.value.trim(),
+        email: e.target.email.value.trim(),
+        cidade: e.target.cidade.value.trim()
+      };
+      localStorage.setItem('ecotech_user', JSON.stringify(user));
+      close(modalPerfil);
+      setToast('Perfil atualizado','Suas informações foram salvas.');
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1200);
+    });
+
+    // ===== Sprint 4: Explore -> Conteúdos (modal + download .txt) =====
+    const eduDB = {
+      'separacao': {
+        titulo: 'Guia prático de separação',
+        linhas: [
+          '✔️ Papel: jornais, revistas, caixas (limpas e secas).',
+          '✔️ Plástico: garrafas PET, embalagens (lavar antes).',
+          '✔️ Metal: latas, alumínio limpo.',
+          '✔️ Vidro: garrafas/potes (sem tampa metálica).',
+          '❌ Não vai: papel higiênico, guardanapo sujo, espelho.',
+          'Calendário: seg e qui — recicláveis; ter — orgânicos.'
+        ]
+      },
+      'composteira': {
+        titulo: 'Composteira caseira',
+        linhas: [
+          'Materiais: 3 baldes com tampa, furadeira, torneirinha.',
+          'Passos: fure o fundo de dois baldes; monte módulos.',
+          'Alimentos: cascas, talos, borra de café, folhas secas.',
+          'Evitar: carne, laticínios, óleo, fezes de animais.',
+          'Manutenção: umidade tipo “esponja úmida” e aeração semanal.'
+        ]
+      },
+      'horta-pequena': {
+        titulo: 'Horta em pequenos espaços',
+        linhas: [
+          'Recipientes: vasos 5–10L, jardineiras, garrafas cortadas.',
+          'Substrato: 1/3 terra, 1/3 composto, 1/3 areia.',
+          'Luz: 4–6h/dia; espécies de meia-sombra (hortelã, alface).',
+          'Rega: dedos no substrato; regar quando estiver seco.',
+          'Ciclo: semear a cada 2–3 semanas para colheitas contínuas.'
+        ]
+      },
+      'aproveitamento': {
+        titulo: 'Aproveitamento integral',
+        linhas: [
+          'Talos de brócolis: refogado com alho e limão.',
+          'Cascas de banana: carne louca vegana temperada.',
+          'Sementes de abóbora: assadas com páprica.',
+          'Caldo de cascas: base para sopas e risotos.',
+          'Segurança: higienize bem e evite partes machucadas.'
+        ]
+      }
+    };
+
+    $$('#view-explore [data-edu]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const key = btn.getAttribute('data-edu');
+        const data = eduDB[key];
+        if(!data) return;
+        $('#edu-title').textContent = data.titulo;
+        const body = $('#edu-body');
+        body.innerHTML = '';
+        data.linhas.forEach(l=>{
+          const p = document.createElement('p'); p.textContent = '• ' + l; body.appendChild(p);
+        });
+        open(modalEdu);
+        // handler de download
+        $('#baixar-edu').onclick = ()=>{
+          const blob = new Blob(
+            [data.titulo+'\n\n'+data.linhas.map(l=>'• '+l).join('\n')],
+            {type:'text/plain;charset=utf-8'}
+          );
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = data.titulo.replace(/\s+/g,'_') + '.txt';
+          document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        };
+      });
+    });
+    $('#fechar-edu').addEventListener('click', ()=> close(modalEdu));
+
+    // ===== Sprint 4: Minhas Hortas (Conecte-se) =====
+    const HORTAS_KEY = 'ecotech_hortas';
+    const listaHortasEl = $('#lista-hortas');
+
+    function getHortas(){
+      try{ return JSON.parse(localStorage.getItem(HORTAS_KEY)||'[]'); }catch{ return []; }
+    }
+    function setHortas(arr){
+      localStorage.setItem(HORTAS_KEY, JSON.stringify(arr));
+    }
+    function renderHortas(){
+      const hortas = getHortas();
+      listaHortasEl.innerHTML = '';
+      if(hortas.length===0){
+        const empty = document.createElement('p');
+        empty.textContent = 'Nenhuma horta cadastrada ainda 👩‍🌾. Adicione a sua acima!';
+        empty.style.color = '#607d71';
+        listaHortasEl.appendChild(empty);
+        return;
+      }
+      hortas.forEach((h,idx)=>{
+        const item = document.createElement('div');
+        item.className = 'horta-item';
+        item.innerHTML = `
+          <div>
+            <strong>${h.nome}</strong><br/>
+            <small>${h.bairro}</small>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" data-act="ver" data-i="${idx}"><i class="ri-information-line"></i> Detalhes</button>
+            <button class="btn btn-primary" data-act="rem" data-i="${idx}"><i class="ri-delete-bin-line"></i> Remover</button>
+          </div>
+        `;
+        listaHortasEl.appendChild(item);
+      });
+      // actions
+      $$('#lista-hortas [data-act="rem"]').forEach(b=>{
+        b.onclick = ()=>{
+          const i = +b.getAttribute('data-i');
+          const arr = getHortas(); arr.splice(i,1); setHortas(arr); renderHortas();
+          setToast('Horta removida','A horta foi retirada da sua lista.');
+          toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1000);
+        };
+      });
+      $$('#lista-hortas [data-act="ver"]').forEach(b=>{
+        b.onclick = ()=>{
+          const i = +b.getAttribute('data-i');
+          const h = getHortas()[i];
+          $('#edu-title').textContent = h.nome;
+          $('#edu-body').innerHTML = `
+            <p><strong>Local:</strong> ${h.bairro}</p>
+            <p>Atividades sugeridas:</p>
+            <p>• Plantio colaborativo aos sábados</p>
+            <p>• Ponto de troca de mudas</p>
+            <p>• Mini-oficina de compostagem</p>
+          `;
+          open(modalEdu);
+        };
+      });
+    }
+
+    $('#form-horta').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const nome = e.target.nome.value.trim();
+      const bairro = e.target.bairro.value.trim();
+      if(!nome || !bairro) return;
+      const arr = getHortas(); arr.push({nome,bairro}); setHortas(arr);
+      e.target.reset(); renderHortas();
+      setToast('Horta adicionada','Ela foi salva na sua lista.');
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1000);
+    });
+
+    // ===== Sprint 4: Eventos -> Inscrição =====
+    const INSCR_KEY = 'ecotech_inscricoes';
+    function getInscr(){ try{ return JSON.parse(localStorage.getItem(INSCR_KEY)||'[]'); }catch{ return []; } }
+    function setInscr(arr){ localStorage.setItem(INSCR_KEY, JSON.stringify(arr)); renderInscricoes(); }
+    function renderInscricoes(){
+      const n = getInscr().length;
+      const el = $('#status-inscricoes');
+      if(el){ el.textContent = `${n} inscrição${n!==1?'es':''}`; }
+    }
+    $('#lista-eventos')?.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-evento]');
+      if(!btn) return;
+      const id = btn.getAttribute('data-evento');
+      const arr = getInscr();
+      if(arr.includes(id)){
+        setToast('Você já está inscrito','Este evento já está na sua lista.');
+      }else{
+        arr.push(id); setInscr(arr);
+        setToast('Inscrição realizada','Nos vemos no evento! 🌱');
+      }
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1200);
+    });
+
+    // ===== Newsletter simples =====
+    $('#form-newsletter').addEventListener('submit',(e)=>{
+      e.preventDefault();
+      setToast('Assinatura confirmada','Você receberá novidades por e-mail.');
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1200);
+      e.target.reset();
+    });
+
+    // Restaura estado se o usuário já tiver cadastro
+    (function autoEnter(){
+      const user = localStorage.getItem('ecotech_user');
+      if(user){
+        // Exibe app diretamente (útil para desenvolvimento)
+        document.getElementById('site').style.display='none';
+        document.getElementById('app').style.display='block';
+        renderHortas(); renderInscricoes();
+      }
+    })();
   </script>
 </body>
 </html>
-
-
