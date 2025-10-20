@@ -20,6 +20,7 @@
       --card:#ffffff;
       --shadow:0 10px 30px rgba(0,0,0,.08);
       --radius:18px;
+      --danger:#d93025;
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
@@ -133,6 +134,15 @@
     .horta-item{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
     .horta-item small{color:#607d71}
     .pill{background:#e8f5e9;color:var(--primary);border-radius:999px;padding:6px 10px;font-weight:700}
+
+    /* ===== Auth Tabs (modal-acesso) ===== */
+    .auth-tabs{display:flex;gap:8px;margin-bottom:12px}
+    .auth-tab{flex:1;padding:10px 12px;border-radius:12px;border:2px solid #e3efe6;background:#f7fbf8;font-weight:700;cursor:pointer;text-align:center}
+    .auth-tab.active{background:#fff;border-color:#cfe8d3;color:var(--primary);box-shadow:var(--shadow)}
+    .auth-view{display:none}
+    .auth-view.active{display:block}
+    .hint{color:#607d71;font-size:.9rem}
+    .error{color:var(--danger);font-weight:700}
   </style>
 </head>
 <body>
@@ -152,11 +162,8 @@
         </ul>
       </nav>
       <div class="right-actions">
-        <button class="btn btn-primary" id="btn-participe"><i class="ri-leaf-line"></i>PARTICIPE</button>
-        <!-- Botão da plataforma aparece só se houver usuário salvo -->
-        <button class="btn btn-ghost" id="btn-abrir-app" style="display:none">
-          <i class="ri-dashboard-line"></i> Plataforma
-        </button>
+        <button class="btn btn-ghost" id="btn-plataforma"><i class="ri-dashboard-line"></i> Plataforma</button>
+        <button class="btn btn-primary" id="btn-participe"><i class="ri-leaf-line"></i> PARTICIPE</button>
       </div>
     </div>
   </header>
@@ -347,7 +354,55 @@
     </div>
   </div>
 
-  <!-- ===== Modal: Cadastro ===== -->
+  <!-- ===== Modal: Acesso (Login ou Cadastro) ===== -->
+  <div class="modal" id="modal-acesso" role="dialog" aria-modal="true" aria-labelledby="acesso-title">
+    <div class="sheet">
+      <h3 id="acesso-title">Acessar a Plataforma</h3>
+      <p class="hint">Faça login com seu e-mail já cadastrado ou crie sua conta gratuitamente.</p>
+
+      <div class="auth-tabs" role="tablist" aria-label="Escolha uma opção">
+        <button class="auth-tab active" data-auth="entrar" role="tab" aria-selected="true"><i class="ri-login-circle-line"></i> Entrar</button>
+        <button class="auth-tab" data-auth="cadastrar" role="tab" aria-selected="false"><i class="ri-user-add-line"></i> Cadastrar</button>
+      </div>
+
+      <!-- Entrar -->
+      <form id="form-entrar" class="grid auth-view active" autocomplete="on">
+        <div class="field">
+          <label for="login_email">E-mail</label>
+          <input id="login_email" name="email" type="email" placeholder="email@exemplo.com" required />
+        </div>
+        <p class="hint">Dica: se já se cadastrou, use o mesmo e-mail.</p>
+        <div class="actions">
+          <button type="button" class="btn" id="cancelar-acesso-1">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="ri-login-box-line"></i> Entrar</button>
+        </div>
+        <p id="login-erro" class="error" style="display:none">E-mail não encontrado. Tente novamente ou cadastre-se.</p>
+      </form>
+
+      <!-- Cadastrar -->
+      <form id="form-cadastrar" class="grid auth-view" autocomplete="on">
+        <div class="field">
+          <label for="cad_nome">Nome</label>
+          <input id="cad_nome" name="nome" placeholder="Seu nome completo" required />
+        </div>
+        <div class="field">
+          <label for="cad_email">E-mail</label>
+          <input id="cad_email" name="email" type="email" placeholder="email@exemplo.com" required />
+        </div>
+        <div class="field">
+          <label for="cad_cidade">Cidade</label>
+          <input id="cad_cidade" name="cidade" placeholder="Sua cidade" />
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" id="cancelar-acesso-2">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="ri-user-follow-line"></i> Criar conta</button>
+        </div>
+        <p class="hint">Após criar a conta, você poderá enviar um e-mail à equipe para formalizar a participação.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Cadastro (antigo – ainda usado para CTA PARTICIPE) ===== -->
   <div class="modal" id="modal-cadastro" role="dialog" aria-modal="true" aria-labelledby="cadastro-title">
     <div class="sheet">
       <h3 id="cadastro-title">Crie seu acesso</h3>
@@ -465,12 +520,12 @@
     const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
     const open = (m)=>m.classList.add('open');
     const close = (m)=>m.classList.remove('open');
+    const toast = $('#toast');
+    const setToast = (title,msg)=>{ $('#toast-title').textContent=title; $('#toast-msg').textContent=msg; };
 
     // ===== Alternância Site/App =====
     const siteRoot = document.getElementById('site');
     const appRoot  = document.getElementById('app');
-    const btnAbrirApp = document.getElementById('btn-abrir-app');
-    const btnVoltarSite = document.getElementById('btn-voltar-site');
 
     function showSite(){
       if(siteRoot) siteRoot.style.display = 'block';
@@ -485,8 +540,6 @@
       renderHortas();
       renderInscricoes();
     }
-    btnAbrirApp?.addEventListener('click', showApp);
-    btnVoltarSite?.addEventListener('click', showSite);
 
     // ===== Smooth scroll =====
     $$('a[href^="#"]').forEach(a=>{
@@ -504,16 +557,74 @@
     const modalEmail = $('#modal-email');
     const modalPerfil = $('#modal-perfil');
     const modalEdu = $('#modal-edu');
-    const toast = $('#toast');
-    const setToast = (title,msg)=>{ $('#toast-title').textContent=title; $('#toast-msg').textContent=msg; };
+    const modalAcesso = $('#modal-acesso');
 
-    // Botões abrir/fechar
+    // ===== Plataforma exige login/cadastro =====
+    $('#btn-plataforma').addEventListener('click', ()=>{
+      // Preenche e alterna para a aba "Entrar" por padrão
+      switchAuthTab('entrar');
+      const user = JSON.parse(localStorage.getItem('ecotech_user')||'{}');
+      if(user.email){ $('#login_email').value = user.email; }
+      open(modalAcesso);
+    });
+
+    // Tabs do modal de acesso
+    $$('.auth-tab').forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        $$('.auth-tab').forEach(t=>{t.classList.remove('active'); t.setAttribute('aria-selected','false');});
+        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+        switchAuthTab(tab.dataset.auth);
+      });
+    });
+    function switchAuthTab(which){
+      $$('.auth-view').forEach(v=>v.classList.remove('active'));
+      if(which==='cadastrar'){
+        $('#form-cadastrar').classList.add('active');
+      }else{
+        $('#form-entrar').classList.add('active');
+      }
+    }
+    // Cancelar
+    $('#cancelar-acesso-1').addEventListener('click', ()=> close(modalAcesso));
+    $('#cancelar-acesso-2').addEventListener('click', ()=> close(modalAcesso));
+
+    // Login simples por e-mail
+    $('#form-entrar').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const email = e.target.email.value.trim().toLowerCase();
+      const saved = JSON.parse(localStorage.getItem('ecotech_user')||'{}');
+      const erro = $('#login-erro');
+      if(saved.email && saved.email.toLowerCase() === email){
+        close(modalAcesso);
+        setToast('Login realizado','Bem-vindo de volta!');
+        toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1000);
+        showApp();
+      }else{
+        erro.style.display='block';
+      }
+    });
+
+    // Cadastro pelo modal de acesso
+    $('#form-cadastrar').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const nome = e.target.nome.value.trim();
+      const email = e.target.email.value.trim();
+      const cidade = e.target.cidade.value.trim();
+      localStorage.setItem('ecotech_user', JSON.stringify({nome,email,cidade}));
+      // Pré-preenche o e-mail para o contato à equipe
+      $('#mensagem').value = `Olá, sou ${nome} (${email}, ${cidade}). Quero apoiar o EcoTech na minha região.`;
+      close(modalAcesso);
+      // Abre o modal de e-mail (história sprint 2/3)
+      open(modalEmail);
+    });
+
+    // ===== CTA PARTICIPE (mantido) =====
     const openCadastro = ()=> open(modalCadastro);
     $('#btn-participe').addEventListener('click', openCadastro);
     $('#btn-ghost-participe').addEventListener('click', openCadastro);
     $('#close-cadastro').addEventListener('click', ()=> close(modalCadastro));
 
-    // ===== Cadastro -> Email =====
+    // Cadastro -> Email (CTA)
     $('#form-cadastro').addEventListener('submit', (e)=>{
       e.preventDefault();
       const nome = e.target.nome.value.trim();
@@ -526,9 +637,8 @@
       open(modalEmail);
     });
 
+    // Email (mailto) e redireciona para APP
     $('#voltar-email').addEventListener('click', ()=>{ close(modalEmail); open(modalCadastro); });
-
-    // Envio de email (simulado com mailto + toast)
     $('#form-email').addEventListener('submit', (e)=>{
       e.preventDefault();
       const to = e.target.to.value;
@@ -538,13 +648,8 @@
       close(modalEmail);
       setToast('Envio confirmado','Obrigado por participar! Redirecionando para a plataforma…');
       toast.classList.add('open');
-      setTimeout(()=>{ toast.classList.remove('open'); entrarNaPlataforma(); }, 1400);
+      setTimeout(()=>{ toast.classList.remove('open'); showApp(); }, 1400);
     });
-
-    function entrarNaPlataforma(){
-      // Agora usa a alternância e mantém o site acessível quando necessário
-      showApp();
-    }
 
     // ===== Header shadow on scroll =====
     const header = document.querySelector('.header');
@@ -564,13 +669,12 @@
       })
     });
 
-    // ===== Sprint 4: Perfil do Usuário =====
+    // ===== Perfil =====
     $('#btn-perfil').addEventListener('click', ()=>{
       carregarPerfil();
       open(modalPerfil);
     });
     $('#fechar-perfil').addEventListener('click', ()=> close(modalPerfil));
-
     function carregarPerfil(){
       const user = JSON.parse(localStorage.getItem('ecotech_user')||'{}');
       $('#p_nome').value = user.nome||'';
@@ -590,7 +694,7 @@
       toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1200);
     });
 
-    // ===== Sprint 4: Explore -> Conteúdos (modal + download .txt) =====
+    // ===== Explore (modal + download .txt) =====
     const eduDB = {
       'separacao': {
         titulo: 'Guia prático de separação',
@@ -647,7 +751,6 @@
           const p = document.createElement('p'); p.textContent = '• ' + l; body.appendChild(p);
         });
         open(modalEdu);
-        // handler de download
         $('#baixar-edu').onclick = ()=>{
           const blob = new Blob(
             [data.titulo+'\n\n'+data.linhas.map(l=>'• '+l).join('\n')],
@@ -660,23 +763,13 @@
         };
       });
     });
-    $('#fechar-edu').addEventListener('click', ()=> close(modal-edu)); // será corrigido logo abaixo
-  </script>
+    $('#fechar-edu').addEventListener('click', ()=> close(modalEdu));
 
-  <script>
-    // Corrige o seletor do fechar-edu (separado para evitar erro de referência antecipada)
-    document.getElementById('fechar-edu')?.addEventListener('click', ()=> document.getElementById('modal-edu')?.classList.remove('open'));
-
-    // ===== Sprint 4: Minhas Hortas (Conecte-se) =====
+    // ===== Minhas Hortas =====
     const HORTAS_KEY = 'ecotech_hortas';
-    const listaHortasEl = document.getElementById('lista-hortas');
-
-    function getHortas(){
-      try{ return JSON.parse(localStorage.getItem(HORTAS_KEY)||'[]'); }catch{ return []; }
-    }
-    function setHortas(arr){
-      localStorage.setItem(HORTAS_KEY, JSON.stringify(arr));
-    }
+    const listaHortasEl = $('#lista-hortas');
+    function getHortas(){ try{ return JSON.parse(localStorage.getItem(HORTAS_KEY)||'[]'); }catch{ return []; } }
+    function setHortas(arr){ localStorage.setItem(HORTAS_KEY, JSON.stringify(arr)); }
     function renderHortas(){
       const hortas = getHortas();
       if(!listaHortasEl) return;
@@ -704,33 +797,32 @@
         listaHortasEl.appendChild(item);
       });
       // actions
-      document.querySelectorAll('#lista-hortas [data-act="rem"]').forEach(b=>{
+      $$('#lista-hortas [data-act="rem"]').forEach(b=>{
         b.onclick = ()=>{
           const i = +b.getAttribute('data-i');
           const arr = getHortas(); arr.splice(i,1); setHortas(arr); renderHortas();
           setToast('Horta removida','A horta foi retirada da sua lista.');
-          document.getElementById('toast')?.classList.add('open');
-          setTimeout(()=>document.getElementById('toast')?.classList.remove('open'), 1000);
+          toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1000);
         };
       });
-      document.querySelectorAll('#lista-hortas [data-act="ver"]').forEach(b=>{
+      $$('#lista-hortas [data-act="ver"]').forEach(b=>{
         b.onclick = ()=>{
           const i = +b.getAttribute('data-i');
           const h = getHortas()[i];
-          document.getElementById('edu-title').textContent = h.nome;
-          document.getElementById('edu-body').innerHTML = `
+          $('#edu-title').textContent = h.nome;
+          $('#edu-body').innerHTML = `
             <p><strong>Local:</strong> ${h.bairro}</p>
             <p>Atividades sugeridas:</p>
             <p>• Plantio colaborativo aos sábados</p>
             <p>• Ponto de troca de mudas</p>
             <p>• Mini-oficina de compostagem</p>
           `;
-          document.getElementById('modal-edu').classList.add('open');
+          open(modalEdu);
         };
       });
     }
 
-    document.getElementById('form-horta')?.addEventListener('submit', (e)=>{
+    $('#form-horta')?.addEventListener('submit', (e)=>{
       e.preventDefault();
       const nome = e.target.nome.value.trim();
       const bairro = e.target.bairro.value.trim();
@@ -738,20 +830,19 @@
       const arr = getHortas(); arr.push({nome,bairro}); setHortas(arr);
       e.target.reset(); renderHortas();
       setToast('Horta adicionada','Ela foi salva na sua lista.');
-      document.getElementById('toast')?.classList.add('open');
-      setTimeout(()=>document.getElementById('toast')?.classList.remove('open'), 1000);
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1000);
     });
 
-    // ===== Sprint 4: Eventos -> Inscrição =====
+    // ===== Eventos -> Inscrição =====
     const INSCR_KEY = 'ecotech_inscricoes';
     function getInscr(){ try{ return JSON.parse(localStorage.getItem(INSCR_KEY)||'[]'); }catch{ return []; } }
     function setInscr(arr){ localStorage.setItem(INSCR_KEY, JSON.stringify(arr)); renderInscricoes(); }
     function renderInscricoes(){
-      const n = getInscr().length;
-      const el = document.getElementById('status-inscricoes');
-      if(el){ el.textContent = `${n} inscrição${n!==1?'es':''}`; }
+    const n = getInscr().length;
+    const el = document.querySelector('#status-inscricoes');
+    if(el){ el.textContent = `${n} ${n === 1 ? 'inscrição' : 'inscrições'}`; }
     }
-    document.getElementById('lista-eventos')?.addEventListener('click', (e)=>{
+    $('#lista-eventos')?.addEventListener('click', (e)=>{
       const btn = e.target.closest('[data-evento]');
       if(!btn) return;
       const id = btn.getAttribute('data-evento');
@@ -762,27 +853,23 @@
         arr.push(id); setInscr(arr);
         setToast('Inscrição realizada','Nos vemos no evento! 🌱');
       }
-      document.getElementById('toast')?.classList.add('open');
-      setTimeout(()=>document.getElementById('toast')?.classList.remove('open'), 1200);
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1200);
     });
 
+    // ===== Voltar do app para o site =====
+    $('#btn-voltar-site').addEventListener('click', showSite);
+
     // ===== Newsletter simples =====
-    document.getElementById('form-newsletter')?.addEventListener('submit',(e)=>{
+    $('#form-newsletter').addEventListener('submit',(e)=>{
       e.preventDefault();
       setToast('Assinatura confirmada','Você receberá novidades por e-mail.');
-      document.getElementById('toast')?.classList.add('open');
-      setTimeout(()=>document.getElementById('toast')?.classList.remove('open'), 1200);
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1200);
       e.target.reset();
     });
 
-    // Restaura estado: mostra só o botão "Plataforma" se houver usuário; não esconde o site
-    (function autoEnter(){
-      const user = localStorage.getItem('ecotech_user');
-      if(user && btnAbrirApp){
-        btnAbrirApp.style.display = 'inline-flex';
-      }
-      // Garantir estado inicial: site visível, app oculto
-      showSite();
+    // ===== Estado inicial: SEM auto-entrar no app =====
+    (function init(){
+      showSite(); // garante que o site público aparece sempre
     })();
   </script>
 </body>
