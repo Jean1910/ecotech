@@ -10,8 +10,10 @@
   <style>
     /* ===================== THEME ===================== */
     :root{
-      --primary:#2e7d32; --primary-600:#1b5e20; --secondary:#66bb6a; --bg:#f6faf7; --ink:#263238;
-      --muted:#5f6a6a; --white:#fff; --accent:#a5d6a7; --card:#ffffff; --shadow:0 10px 30px rgba(0,0,0,.08); --radius:18px; --danger:#d93025;
+      --primary:#2e7d32; --primary-600:#1b5e20; --secondary:#66bb6a;
+      --bg:#f6faf7; --ink:#263238; --muted:#5f6a6a; --white:#fff;
+      --accent:#a5d6a7; --card:#ffffff; --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:18px; --danger:#d93025; --warning:#e67e22; --ok:#2e7d32;
     }
     [data-theme="dark"]{
       --bg:#0e1512; --ink:#e6f0ea; --muted:#a9b7ad; --card:#0f1b16; --accent:#184f2a; --shadow:0 12px 36px rgba(0,0,0,.4);
@@ -92,7 +94,7 @@
     footer{margin-top:48px;background:#0f2d20;color:#eaf4ed}
     .footer-inner{display:flex;gap:18px;align-items:center;justify-content:space-between;min-height:72px}
 
-    /* ===================== MODALS & TOAST ===================== */
+    /* ===================== MODAIS & TOAST ===================== */
     .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.5);z-index:80;padding:16px}
     .modal.open{display:grid}
     .sheet{background:#fff;border-radius:20px;max-width:720px;width:100%;padding:22px 22px 18px;box-shadow:var(--shadow)}
@@ -127,9 +129,13 @@
     .views>section.active{display:block}
 
     .subbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .subbar input[type="search"]{padding:10px 12px;border-radius:12px;border:1.6px solid #e3efe6;background:var(--card);color:var(--ink);min-width:240px}
+    .subbar input[type="search"]{padding:10px 12px;border-radius:12px;border:1.6px solid #e3efe6;background:var(--card);color:var(--ink);min-width:260px}
+    .select{padding:10px 12px;border-radius:12px;border:1.6px solid #e3efe6;background:var(--card);color:var(--ink)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip-filter{background:#eef7f0;border:1.6px solid #cfe8d3;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
+    .chip-filter.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}
 
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
     .card-sm{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:18px;display:grid;gap:6px}
 
     .progress{height:10px;background:#e8f5e9;border-radius:999px;overflow:hidden}
@@ -142,22 +148,19 @@
     .empty{padding:18px;border:2px dashed #cfe8d3;border-radius:16px;color:#607d71;text-align:center}
     .sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    /* ====== AUTENTICAÇÃO: abas e views (IMPORTANTE) ====== */
+    /* ====== AUTENTICAÇÃO: abas e views ====== */
     .auth-tabs{ display:flex; gap:8px; margin:8px 0 14px; }
-    .auth-tab{
-      padding:8px 12px; border-radius:999px; border:1.6px solid #e3efe6;
-      background:#f4fbf6; color:#0f2d20; font-weight:700; cursor:pointer;
-    }
+    .auth-tab{ padding:8px 12px; border-radius:999px; border:1.6px solid #e3efe6; background:#f4fbf6; color:#0f2d20; font-weight:700; cursor:pointer; }
     [data-theme="dark"] .auth-tab{ background:#143b28; color:#def9e9; border-color:#123b27; }
     .auth-tab.active{ background:#fff; border-color:#cfe8d3; color:var(--primary); box-shadow:var(--shadow); }
     [data-theme="dark"] .auth-tab.active{ background:#0f1b16; }
-
-    /* Vem DEPOIS de .grid: força esconder a view inativa */
     .auth-view{ display:none; grid-template-columns:1fr; }
     .auth-view.active{ display:grid; }
-
     .error{ color:var(--danger); font-weight:700; }
     .sheet form + form{ margin-top:8px; border-top:1px dashed #e3efe6; padding-top:12px; }
+
+    /* Pequenos toques de acessibilidade */
+    .kbd{border:1px solid #cfe8d3;border-bottom-width:3px;border-radius:6px;padding:1px 6px;font-weight:700;background:#f4fbf6}
   </style>
 </head>
 <body>
@@ -259,22 +262,29 @@
           <button class="tab" data-view="eventos" role="tab" aria-selected="false">Eventos</button>
           <button class="tab" data-view="desafios" role="tab" aria-selected="false">Desafios</button>
           <button class="tab" data-view="salvos" role="tab" aria-selected="false">Salvos</button>
-          <button class="tab" data-view="notifs" role="tab" aria-selected="false"><i class="ri-notification-3-line"></i></button>
+          <button class="tab" data-view="notifs" role="tab" aria-selected="false" title="Notificações (N)"><i class="ri-notification-3-line"></i></button>
         </div>
 
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <button class="chip" id="btn-perfil" title="Editar perfil"><i class="ri-user-3-line"></i> <span id="chip-nome">Perfil</span></button>
+          <button class="chip" id="btn-perfil" title="Editar perfil (P)"><i class="ri-user-3-line"></i> <span id="chip-nome">Perfil</span></button>
           <button class="chip" id="btn-logout" title="Sair"><i class="ri-logout-box-r-line"></i> Sair</button>
-          <button class="chip" id="btn-theme-app" title="Alternar tema"><i class="ri-contrast-2-line"></i></button>
+          <button class="chip" id="btn-theme-app" title="Alternar tema (T)"><i class="ri-contrast-2-line"></i></button>
         </div>
       </div>
 
       <div class="views">
         <!-- DASHBOARD -->
         <section id="view-dash" class="active">
-          <div class="subbar">
-            <div class="chip" id="streak"><i class="ri-fire-line"></i> <span id="streak-text">0 dias de streak</span></div>
-            <div class="chip"><i class="ri-trophy-line"></i> <span id="xp-text">0 xp</span></div>
+          <div class="subbar" style="justify-content:space-between">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <div class="chip" id="streak"><i class="ri-fire-line"></i> <span id="streak-text">0 dias de streak</span></div>
+              <div class="chip"><i class="ri-trophy-line"></i> <span id="xp-text">0 xp</span></div>
+            </div>
+            <div class="chips">
+              <button class="chip" id="qa-horta"><i class="ri-add-circle-line"></i> Adicionar Horta</button>
+              <button class="chip" id="qa-conteudo"><i class="ri-book-open-line"></i> Abrir Conteúdos</button>
+              <button class="chip" id="qa-eventos"><i class="ri-calendar-event-line"></i> Ver Eventos</button>
+            </div>
           </div>
 
           <div class="cards" style="margin-top:12px">
@@ -283,10 +293,17 @@
               <div class="progress" aria-label="Progresso"><div class="bar" id="bar-progress"></div></div>
               <small id="meta-text">0/5 metas concluídas</small>
             </article>
+
+            <article class="card-sm">
+              <strong>Checklist de Onboarding</strong>
+              <ul class="list" id="onb-list"></ul>
+            </article>
+
             <article class="card-sm">
               <strong>Próximos eventos</strong>
               <ul class="list" id="prox-eventos"></ul>
             </article>
+
             <article class="card-sm">
               <strong>Badges</strong>
               <div class="list" id="badges"><div class="empty">Sem badges ainda. Conclua desafios! 🥇</div></div>
@@ -294,13 +311,28 @@
           </div>
         </section>
 
-        <!-- CONTEÚDOS -->
+        <!-- CONTEÚDOS (melhorado) -->
         <section id="view-explore">
-          <div class="subbar">
+          <div class="subbar" style="row-gap:8px">
             <input type="search" id="busca" placeholder="Buscar por 'composteira', 'horta', 'reciclagem'..."/>
+            <select id="ordenar" class="select" title="Ordenar">
+              <option value="recomendados">Recomendados</option>
+              <option value="novos">Mais novos</option>
+              <option value="tempo">Menor tempo</option>
+              <option value="dificuldade">Menor dificuldade</option>
+            </select>
             <span class="chip" id="resultado"></span>
           </div>
+
+          <div class="chips" id="filtros-tags" style="margin-bottom:8px"></div>
+
           <div class="cards" id="grid-conteudos" style="margin-top:10px"></div>
+
+          <div style="display:flex;gap:8px;justify-content:center;margin:12px 0">
+            <button class="btn btn-ghost" id="prev-page"><i class="ri-arrow-left-s-line"></i> Anterior</button>
+            <span class="chip" id="paginacao-info">Página 1/1</span>
+            <button class="btn btn-ghost" id="next-page">Próxima <i class="ri-arrow-right-s-line"></i></button>
+          </div>
         </section>
 
         <!-- HORTAS -->
@@ -312,6 +344,7 @@
             <button class="btn btn-primary" type="submit"><i class="ri-add-circle-line"></i> Adicionar</button>
           </form>
           <div class="list" id="lista-hortas" style="margin-top:12px"></div>
+          <div class="empty" style="margin-top:12px">Dica: pressione <span class="kbd">/</span> para ir à busca de conteúdos rapidamente.</div>
         </section>
 
         <!-- EVENTOS -->
@@ -380,6 +413,9 @@
         <div class="field"><label for="p_cidade">Cidade</label><input id="p_cidade" name="cidade" placeholder="Sua cidade" /></div>
         <div class="actions"><button type="button" class="btn" id="fechar-perfil">Cancelar</button><button type="submit" class="btn btn-primary"><i class="ri-save-3-line"></i> Salvar</button></div>
       </form>
+      <div class="actions" style="justify-content:flex-start;margin-top:8px">
+        <button class="btn btn-ghost" id="btn-exportar"><i class="ri-download-2-line"></i> Exportar meus dados (.json)</button>
+      </div>
     </div>
   </div>
 
@@ -388,7 +424,18 @@
     <div class="sheet">
       <h3 id="edu-title">Conteúdo</h3>
       <div id="edu-body" class="grid" style="gap:8px"></div>
-      <div class="actions"><button type="button" class="btn" id="fechar-edu">Fechar</button><button type="button" class="btn btn-primary" id="baixar-edu"><i class="ri-download-2-line"></i> Baixar .txt</button></div>
+      <div class="grid">
+        <div class="field">
+          <label for="nota-conteudo">Suas anotações</label>
+          <textarea id="nota-conteudo" placeholder="Registre aprendizados, ideias ou tarefas…"></textarea>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="marcar-concluido"><i class="ri-check-double-line"></i> Marcar como concluído</button>
+        <button type="button" class="btn btn-ghost" id="salvar-nota"><i class="ri-save-2-line"></i> Salvar nota</button>
+        <button type="button" class="btn" id="fechar-edu">Fechar</button>
+        <button type="button" class="btn btn-primary" id="baixar-edu"><i class="ri-download-2-line"></i> Baixar .txt</button>
+      </div>
     </div>
   </div>
 
@@ -412,7 +459,12 @@
     $('#btn-theme-app').addEventListener('click', toggleTheme);
 
     /* ========= Storage Keys ========= */
-    const KEYS = { user:'ecotech_user', session:'ecotech_session', theme:'ecotech_theme', hortas:'ecotech_hortas', inscr:'ecotech_inscricoes', salvos:'ecotech_salvos', notifs:'ecotech_notifs', metas:'ecotech_metas', xp:'ecotech_xp', streak:'ecotech_streak' };
+    const KEYS = {
+      user:'ecotech_user', session:'ecotech_session', theme:'ecotech_theme',
+      hortas:'ecotech_hortas', inscr:'ecotech_inscricoes', salvos:'ecotech_salvos',
+      notifs:'ecotech_notifs', metas:'ecotech_metas', xp:'ecotech_xp', streak:'ecotech_streak',
+      onb:'ecotech_onboarding', notes:'ecotech_notes', done:'ecotech_done'
+    };
 
     /* ========= Simple crypto hash ========= */
     async function sha256Hex(text){ const enc = new TextEncoder().encode(text); const buf = await crypto.subtle.digest('SHA-256', enc); return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join(''); }
@@ -421,7 +473,7 @@
     const siteRoot = $('#site');
     const appRoot  = $('#app');
     function showSite(){ siteRoot.style.display='block'; appRoot.style.display='none'; document.body.classList.remove('logged-in'); window.scrollTo({top:0, behavior:'smooth'}); }
-    function showApp(){ siteRoot.style.display='none'; appRoot.style.display='block'; document.body.classList.add('logged-in'); window.scrollTo({top:0, behavior:'smooth'}); carregarPerfil(); hydrateDash(); renderConteudos(); renderHortas(); renderInscricoes(); renderEventos(); renderDesafios(); renderSalvos(); renderNotifs(); }
+    function showApp(){ siteRoot.style.display='none'; appRoot.style.display='block'; document.body.classList.add('logged-in'); window.scrollTo({top:0, behavior:'smooth'}); carregarPerfil(); hydrateDash(); renderOnboarding(); renderConteudos(); renderHortas(); renderInscricoes(); renderEventos(); renderDesafios(); renderSalvos(); renderNotifs(); }
 
     /* ========= Auth Modal ========= */
     const modalAcesso = $('#modal-acesso');
@@ -436,51 +488,29 @@
     });
 
     function switchAuthTab(which){
-      // esconde todas, mostra somente a ativa
       $$('.auth-view').forEach(v=>v.classList.remove('active'));
       const view = (which === 'cadastrar') ? $('#form-cadastrar') : $('#form-entrar');
       view.classList.add('active');
-
-      // limpa erros
-      $('#login-erro').style.display='none';
-      $('#cad-erro').style.display='none';
-
-      // ajusta título/hint para diferenciar claramente
-      if(which === 'cadastrar'){
-        $('#acesso-title').textContent = 'Criar sua conta';
-        hint.textContent = 'Preencha seus dados para começar a usar a plataforma.';
-      } else {
-        $('#acesso-title').textContent = 'Entrar na Plataforma';
-        hint.textContent = 'Acesse com seu e-mail e senha.';
-      }
-
-      // foco no primeiro campo
-      const firstInput = view.querySelector('input');
-      if(firstInput){ firstInput.focus(); }
+      $('#login-erro').style.display='none'; $('#cad-erro').style.display='none';
+      if(which === 'cadastrar'){ $('#acesso-title').textContent = 'Criar sua conta'; hint.textContent = 'Preencha seus dados para começar a usar a plataforma.'; }
+      else { $('#acesso-title').textContent = 'Entrar na Plataforma'; hint.textContent = 'Acesse com seu e-mail e senha.'; }
+      const firstInput = view.querySelector('input'); if(firstInput){ firstInput.focus(); }
     }
 
-    $('#btn-plataforma').addEventListener('click', ()=>{ // abre login
+    $('#btn-plataforma').addEventListener('click', ()=>{
       $$('.auth-tab').forEach(t=>{t.classList.remove('active'); t.setAttribute('aria-selected','false');});
-      const tabLogin = $$('.auth-tab')[0];
-      tabLogin.classList.add('active'); tabLogin.setAttribute('aria-selected','true');
-
+      const tabLogin = $$('.auth-tab')[0]; tabLogin.classList.add('active'); tabLogin.setAttribute('aria-selected','true');
       switchAuthTab('entrar');
-
       const user = getUser(); if(user.email) $('#login_email').value = user.email; $('#login_senha').value='';
       open(modalAcesso);
     });
-
     $$('[data-close-acesso]').forEach(btn=> btn.addEventListener('click', ()=> close(modalAcesso)));
 
     // Cadastro
     $('#form-cadastrar').addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const f=e.target;
-      const nome=f.nome.value.trim();
-      const email=f.email.value.trim().toLowerCase();
-      const cidade=f.cidade.value.trim();
-      const senha=f.senha.value;
-      const confirma=f.confirma.value;
+      const f=e.target; const nome=f.nome.value.trim(); const email=f.email.value.trim().toLowerCase();
+      const cidade=f.cidade.value.trim(); const senha=f.senha.value; const confirma=f.confirma.value;
       const erro=$('#cad-erro');
       if(senha.length<6){ erro.textContent='A senha deve ter pelo menos 6 caracteres.'; erro.style.display='block'; return; }
       if(senha!==confirma){ erro.textContent='As senhas não conferem.'; erro.style.display='block'; return; }
@@ -488,6 +518,8 @@
       const passHash = await sha256Hex(senha);
       localStorage.setItem(KEYS.user, JSON.stringify({nome,email,cidade,passHash}));
       localStorage.setItem(KEYS.session, '1');
+      // inicia onboarding
+      localStorage.setItem(KEYS.onb, JSON.stringify({perfil:false, conteudo:false, horta:false}));
       close(modalAcesso); setToast('Conta criada','Bem-vindo(a)!'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 900);
       showApp();
     });
@@ -542,8 +574,21 @@
       localStorage.setItem(KEYS.user, JSON.stringify(u));
       close(modalPerfil);
       setToast('Perfil atualizado','Suas informações foram salvas.');
-      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 1000);
+      toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 900);
       carregarPerfil();
+      // completar onboarding passo de perfil
+      const onb=getOnb(); if(onb && onb.perfil===false){ onb.perfil=true; setOnb(onb); renderOnboarding(); }
+    });
+    // Exportar dados
+    $('#btn-exportar').addEventListener('click', ()=>{
+      const dump={
+        user:getUser(), hortas:getHortas(), inscr:getInscr(), salvos:getSalvos(),
+        notifs:getNotifs(), metas:getMetas(), xp:getXP(), streak:getStreak(),
+        notas:getNotes(), concluidos:getDone()
+      };
+      const blob=new Blob([JSON.stringify(dump,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=url; a.download='ecotech_meus_dados.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     });
 
     /* ========= Tabs ========= */
@@ -555,56 +600,181 @@
       $('#view-'+view).classList.add('active');
     }));
 
-    /* ========= Conteúdos ========= */
-    const edu = [
-      {id:'separacao', titulo:'Guia prático de separação', desc:'Checklist e calendário de coleta seletiva.', tags:['reciclagem','resíduos']},
-      {id:'composteira', titulo:'Composteira caseira', desc:'Passo a passo com materiais acessíveis.', tags:['compostagem','orgânicos']},
-      {id:'horta-pequena', titulo:'Horta em pequenos espaços', desc:'Técnicas para vasos e meia-sombra.', tags:['horta','cultivo']},
-      {id:'aproveitamento', titulo:'Aproveitamento integral', desc:'Receitas com talos, cascas e sementes.', tags:['alimentação','zero desperdício']},
-    ];
-    const eduBody = $('#edu-body');
-    function renderConteudos(filter=''){
-      const grid=$('#grid-conteudos');
-      const salvos=getSalvos();
-      const q=filter.trim().toLowerCase();
-      const itens=edu.filter(x=> !q || x.titulo.toLowerCase().includes(q) || x.tags.join(' ').toLowerCase().includes(q));
-      $('#resultado').textContent = q? `${itens.length} resultado(s)` : '';
-      grid.innerHTML='';
+    /* ========= Onboarding (Dashboard) ========= */
+    function getOnb(){ try{return JSON.parse(localStorage.getItem(KEYS.onb)||'{}');}catch{return{};} }
+    function setOnb(v){ localStorage.setItem(KEYS.onb, JSON.stringify(v)); }
+    function renderOnboarding(){
+      const list=$('#onb-list'); const onb=getOnb();
+      if(!onb || Object.keys(onb).length===0){ setOnb({perfil:false, conteudo:false, horta:false}); return renderOnboarding(); }
+      list.innerHTML='';
+      const itens=[
+        {id:'perfil', txt:'Completar perfil', act:()=>$('#btn-perfil').click()},
+        {id:'conteudo', txt:'Ler 1 conteúdo', act:()=>selectTab('explore')},
+        {id:'horta', txt:'Cadastrar 1 horta', act:()=>{selectTab('conecte'); $('#form-horta input[name=nome]').focus();}}
+      ];
       itens.forEach(x=>{
-        const el=document.createElement('article');
-        el.className='card-sm';
-        el.innerHTML=`<h4>${x.titulo}</h4><p>${x.desc}</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
+        const done=!!onb[x.id];
+        const li=document.createElement('div'); li.className='item';
+        li.innerHTML=`<div><strong>${x.txt}</strong></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="pill" style="background:${done?'#e8f5e9':'#fff'};border:1px solid #cfe8d3">${done?'Concluído':'Pendente'}</span>
+            <button class="btn btn-ghost" ${done?'disabled':''} data-onb="${x.id}">${done?'✔':''} ${done?'':''}Ação</button>
+          </div>`;
+        li.querySelector('button').addEventListener('click',()=>x.act());
+        list.appendChild(li);
+      });
+    }
+    function completeOnbStep(step){ const onb=getOnb(); if(onb && onb[step]===false){ onb[step]=true; setOnb(onb); renderOnboarding(); } }
+    function selectTab(view){ $$('.tab').forEach(t=>{t.classList.toggle('active', t.dataset.view===view); t.setAttribute('aria-selected', String(t.dataset.view===view));}); $$('.views>section').forEach(s=>s.classList.remove('active')); $('#view-'+view).classList.add('active'); }
+
+    /* ========= Conteúdos (melhorado) ========= */
+    // catálogo ampliado
+    const edu = [
+      {id:'separacao', titulo:'Guia prático de separação', desc:'Checklist e calendário de coleta seletiva.', tags:['reciclagem','resíduos'], min:5, dif:1, created:'2024-08-01'},
+      {id:'pontos-coleta', titulo:'Mapa de Pontos de Coleta', desc:'Como localizar e registrar pontos no seu bairro.', tags:['reciclagem','comunidade'], min:6, dif:1, created:'2024-11-12'},
+      {id:'composteira', titulo:'Composteira caseira', desc:'Passo a passo com materiais acessíveis.', tags:['compostagem','orgânicos'], min:8, dif:2, created:'2024-10-03'},
+      {id:'lombri', titulo:'Vermicompostagem (com minhocas)', desc:'Guia para iniciar com segurança.', tags:['compostagem'], min:10, dif:3, created:'2025-01-05'},
+      {id:'horta-pequena', titulo:'Horta em pequenos espaços', desc:'Técnicas para vasos e meia-sombra.', tags:['horta','cultivo'], min:7, dif:2, created:'2024-09-10'},
+      {id:'horta-solo', titulo:'Preparando o solo', desc:'pH, matéria orgânica e drenagem.', tags:['horta','cultivo'], min:9, dif:3, created:'2025-02-01'},
+      {id:'capta-agua', titulo:'Captação de água da chuva', desc:'Sistema caseiro, filtros e segurança.', tags:['água','resiliência'], min:12, dif:3, created:'2025-02-20'},
+      {id:'aproveitamento', titulo:'Aproveitamento integral', desc:'Receitas com talos, cascas e sementes.', tags:['alimentação','zero desperdício'], min:6, dif:1, created:'2024-08-25'},
+      {id:'calendario', titulo:'Calendário de plantio (clima SP)', desc:'O que plantar por estação.', tags:['horta','planejamento'], min:5, dif:1, created:'2025-01-15'},
+      {id:'oleo', titulo:'O que fazer com óleo usado', desc:'Armazenamento e destino correto.', tags:['resíduos','reciclagem'], min:4, dif:1, created:'2025-03-01'},
+      {id:'mutirao-guia', titulo:'Como organizar um mutirão', desc:'Checklist, papéis e parcerias.', tags:['comunidade','organização'], min:11, dif:2, created:'2025-03-22'},
+      {id:'saude-basica', titulo:'Bases de alimentação saudável', desc:'Princípios simples para o dia a dia.', tags:['alimentação','saúde'], min:7, dif:1, created:'2025-01-28'}
+    ];
+    const contentDetail = {
+      'separacao':{linhas:['✔️ Papel: jornais, caixas (limpas e secas).','✔️ Plástico: garrafas PET, embalagens (lavar).','✔️ Metal: latas, alumínio limpo.','✔️ Vidro: garrafas/potes (sem tampa metálica).','❌ Não vai: papel higiênico, guardanapo sujo, espelho.']},
+      'pontos-coleta':{linhas:['Use o mapa da prefeitura + apps locais.','Cadastre local, horário e tipo de resíduo.','Valide com fotos e feedback da comunidade.']},
+      'composteira':{linhas:['Materiais: 3 baldes com tampa, furadeira.','Alimentos: cascas, talos, borra de café, folhas secas.','Evitar: carne, laticínios, óleo, fezes.']},
+      'lombri':{linhas:['Comece com 500g de minhocas californianas.','Manter umidade 60–70% e sombra.','Evitar cítricos e excesso de proteína.']},
+      'horta-pequena':{linhas:['Vasos 5–10L, jardineiras.','Substrato: 1/3 terra, 1/3 composto, 1/3 areia.','Luz: 4–6h/dia; meia-sombra: hortelã, alface.']},
+      'horta-solo':{linhas:['Teste simples de drenagem (buraco + água).','Adicionar composto e cobertura morta.','Rotação e consórcios ajudam o solo.']},
+      'capta-agua':{linhas:['Calhas + barril com tampa.','Use tela contra mosquitos e primeira descarga.','Água para rega e limpeza (não potável).']},
+      'aproveitamento':{linhas:['Talos de brócolis refogados.','Cascas de banana – carne louca veg.','Sementes de abóbora assadas.']},
+      'calendario':{linhas:['Outono: folhas (alface, rúcula).','Inverno: brássicas.','Primavera: ervas e flores comestíveis.','Verão: tomate, pimentas, manjericão.']},
+      'oleo':{linhas:['Armazenar em garrafa PET.','Levar a ponto de coleta.','Evita entupimentos e poluição da água.']},
+      'mutirao-guia':{linhas:['Defina objetivo e duração.','Monte lista de materiais.','Parcerias locais aumentam alcance.']},
+      'saude-basica':{linhas:['Baseie-se em alimentos in natura.','Boa hidratação e sono.','Planeje compras e preparo da semana.']}
+    };
+
+    // Estado da view Explore
+    const exploreState = { q:'', tag:'', sort:'recomendados', page:1, perPage:6 };
+    const eduBody = $('#edu-body'); let eduOpenId=null;
+
+    // util localStorage (salvos, notas, concluídos)
+    function getSalvos(){ try{return JSON.parse(localStorage.getItem(KEYS.salvos)||'[]');}catch{return[];} }
+    function setSalvos(v){ localStorage.setItem(KEYS.salvos, JSON.stringify(v)); }
+    function toggleSalvar(id){ const s=getSalvos(); const i=s.indexOf(id); if(i>=0) s.splice(i,1); else s.push(id); setSalvos(s); }
+
+    function getNotes(){ try{return JSON.parse(localStorage.getItem(KEYS.notes)||'{}');}catch{return{};} }
+    function setNotes(obj){ localStorage.setItem(KEYS.notes, JSON.stringify(obj)); }
+    function getNoteFor(id){ const n=getNotes(); return n[id]||''; }
+    function setNoteFor(id,text){ const n=getNotes(); n[id]=text; setNotes(n); }
+
+    function getDone(){ try{return JSON.parse(localStorage.getItem(KEYS.done)||'[]');}catch{return[];} }
+    function setDone(arr){ localStorage.setItem(KEYS.done, JSON.stringify(arr)); }
+    function markDone(id){ const d=new Set(getDone()); d.add(id); setDone([...d]); }
+
+    function uniqueTags(){ const set=new Set(); edu.forEach(c=>c.tags.forEach(t=>set.add(t))); return [...set]; }
+
+    function renderTagFilters(){
+      const wrap=$('#filtros-tags'); wrap.innerHTML='';
+      const all=['tudo', ...uniqueTags()];
+      all.forEach(t=>{
+        const b=document.createElement('button');
+        b.className='chip-filter'+((!exploreState.tag && t==='tudo') || (exploreState.tag===t)?' active':'');
+        b.textContent=t[0].toUpperCase()+t.slice(1);
+        b.addEventListener('click', ()=>{
+          exploreState.tag = (t==='tudo')?'':t;
+          exploreState.page=1;
+          renderConteudos();
+        });
+        wrap.appendChild(b);
+      });
+    }
+
+    function sortItems(items){
+      switch(exploreState.sort){
+        case 'novos': return items.sort((a,b)=> new Date(b.created)-new Date(a.created));
+        case 'tempo': return items.sort((a,b)=> a.min-b.min);
+        case 'dificuldade': return items.sort((a,b)=> a.dif-b.dif);
+        default: return items; // recomendados (ordem base)
+      }
+    }
+
+    function renderConteudos(){
+      renderTagFilters();
+      const grid=$('#grid-conteudos'); const salvos=getSalvos();
+      const q=exploreState.q.trim().toLowerCase();
+      let itens=edu.filter(x=>{
+        const matchQ = !q || x.titulo.toLowerCase().includes(q) || x.desc.toLowerCase().includes(q) || x.tags.join(' ').toLowerCase().includes(q);
+        const matchTag = !exploreState.tag || x.tags.includes(exploreState.tag);
+        return matchQ && matchTag;
+      });
+      itens = sortItems(itens);
+      const total=itens.length; const pages=Math.max(1, Math.ceil(total/exploreState.perPage));
+      exploreState.page = Math.min(exploreState.page, pages);
+      const start=(exploreState.page-1)*exploreState.perPage;
+      const pageItems=itens.slice(start, start+exploreState.perPage);
+      $('#resultado').textContent = (q || exploreState.tag)? `${total} resultado(s)` : `Recomendados (${total})`;
+      $('#paginacao-info').textContent = `Página ${exploreState.page}/${pages}`;
+      grid.innerHTML='';
+      if(pageItems.length===0){ grid.innerHTML='<div class="empty">Nada por aqui. Experimente alterar filtros ou termos de busca.</div>'; }
+      pageItems.forEach(x=>{
+        const done = getDone().includes(x.id);
+        const el=document.createElement('article'); el.className='card-sm';
+        el.innerHTML=`
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h4 style="margin-right:8px">${x.titulo}</h4>
+            <span class="pill" title="Dificuldade">D${x.dif}</span>
+          </div>
+          <p>${x.desc}</p>
+          <small style="opacity:.8">Tempo: ~${x.min} min • Tags: ${x.tags.join(', ')}</small>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
             <button class="btn btn-primary" data-open="${x.id}"><i class="ri-book-open-line"></i> Abrir</button>
             <button class="btn btn-ghost" data-save="${x.id}"><i class="ri-bookmark-${salvos.includes(x.id)?'fill':'line'}"></i> ${salvos.includes(x.id)?'Salvo':'Salvar'}</button>
+            <button class="btn btn-ghost" data-done="${x.id}"><i class="ri-check-${done?'double-':''}line"></i> ${done?'Concluído':'Marcar concluído'}</button>
           </div>`;
         grid.appendChild(el);
       });
     }
-    $('#busca').addEventListener('input', (e)=> renderConteudos(e.target.value));
+
+    // controles de busca/ordenar/paginar
+    $('#busca').addEventListener('input', (e)=>{ exploreState.q=e.target.value; exploreState.page=1; renderConteudos(); });
+    $('#ordenar').addEventListener('change', (e)=>{ exploreState.sort=e.target.value; exploreState.page=1; renderConteudos(); });
+    $('#prev-page').addEventListener('click', ()=>{ if(exploreState.page>1){ exploreState.page--; renderConteudos(); }});
+    $('#next-page').addEventListener('click', ()=>{ exploreState.page++; renderConteudos(); });
+
+    // clicks nos cards
     $('#grid-conteudos').addEventListener('click', (e)=>{
       const btn=e.target.closest('button'); if(!btn) return;
-      const openId=btn.getAttribute('data-open'); const saveId=btn.getAttribute('data-save');
+      const openId=btn.getAttribute('data-open');
+      const saveId=btn.getAttribute('data-save');
+      const doneId=btn.getAttribute('data-done');
       if(openId){ openEdu(openId); }
-      if(saveId){ toggleSalvar(saveId); renderConteudos($('#busca').value); renderSalvos(); setToast('Salvo','Conteúdo salvo na sua lista.'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 800); }
+      if(saveId){ toggleSalvar(saveId); renderConteudos(); renderSalvos(); setToast('Salvo','Conteúdo salvo na sua lista.'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 800); }
+      if(doneId){ markDone(doneId); hydrateDash(); renderConteudos(); setToast('Concluído','Bom trabalho!'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 800); completeOnbStep('conteudo'); }
     });
+
     function openEdu(id){
-      const m={
-        'separacao':{titulo:'Guia prático de separação',linhas:['✔️ Papel: jornais, caixas (limpas e secas).','✔️ Plástico: garrafas PET, embalagens (lavar).','✔️ Metal: latas, alumínio limpo.','✔️ Vidro: garrafas/potes (sem tampa metálica).','❌ Não vai: papel higiênico, guardanapo sujo, espelho.']},
-        'composteira':{titulo:'Composteira caseira',linhas:['Materiais: 3 baldes com tampa, furadeira.','Alimentos: cascas, talos, borra de café, folhas secas.','Evitar: carne, laticínios, óleo, fezes.']},
-        'horta-pequena':{titulo:'Horta em pequenos espaços',linhas:['Vasos 5–10L, jardineiras.','Substrato: 1/3 terra, 1/3 composto, 1/3 areia.','Luz: 4–6h/dia; meia-sombra: hortelã, alface.']},
-        'aproveitamento':{titulo:'Aproveitamento integral',linhas:['Talos de brócolis refogados.','Cascas de banana – carne louca veg.','Sementes de abóbora assadas.']},
-      };
-      const data=m[id]; if(!data) return;
-      $('#edu-title').textContent=data.titulo; eduBody.innerHTML='';
+      eduOpenId=id;
+      const c=edu.find(x=>x.id===id); const data=contentDetail[id]; if(!c||!data) return;
+      $('#edu-title').textContent=c.titulo; eduBody.innerHTML='';
       data.linhas.forEach(l=>{ const p=document.createElement('p'); p.textContent='• '+l; eduBody.appendChild(p); });
+      const nota = getNoteFor(id); $('#nota-conteudo').value = nota;
       open($('#modal-edu'));
+      // baixar .txt
       $('#baixar-edu').onclick = ()=>{
-        const blob=new Blob([data.titulo+'\n\n'+data.linhas.map(l=>'• '+l).join('\n')],{type:'text/plain;charset=utf-8'});
+        const content = `${c.titulo}\n\n${data.linhas.map(l=>'• '+l).join('\n')}\n\nMinutos: ~${c.min} | Dificuldade: D${c.dif}`;
+        const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
         const url=URL.createObjectURL(blob);
-        const a=document.createElement('a'); a.href=url; a.download=data.titulo.replace(/\s+/g,'_')+'.txt';
+        const a=document.createElement('a'); a.href=url; a.download=c.titulo.replace(/\s+/g,'_')+'.txt';
         document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
       };
+      // ações dentro do modal
+      $('#marcar-concluido').onclick=()=>{ markDone(id); hydrateDash(); renderConteudos(); setToast('Concluído','Conteúdo marcado como concluído.'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 800); completeOnbStep('conteudo'); };
+      $('#salvar-nota').onclick=()=>{ setNoteFor(id, $('#nota-conteudo').value.trim()); setToast('Anotação salva','Você pode editar quando quiser.'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 800); };
     }
     $('#fechar-edu').addEventListener('click', ()=> close($('#modal-edu')));
 
@@ -629,18 +799,20 @@
       e.preventDefault(); const nome=e.target.nome.value.trim(); const bairro=e.target.bairro.value.trim(); if(!nome||!bairro) return;
       const arr=getHortas(); arr.push({nome,bairro}); setHortas(arr); e.target.reset(); renderHortas();
       setToast('Horta adicionada','Ela foi salva na sua lista.'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 900);
+      completeOnbStep('horta');
     });
     listaHortasEl.addEventListener('click', (e)=>{
       const btn=e.target.closest('button'); if(!btn) return; const i=+btn.getAttribute('data-i'); const act=btn.getAttribute('data-act');
       if(act==='rem'){ const arr=getHortas(); arr.splice(i,1); setHortas(arr); renderHortas(); setToast('Horta removida','Removida da sua lista.'); toast.classList.add('open'); setTimeout(()=>toast.classList.remove('open'), 900);}
-      if(act==='ver'){ const h=getHortas()[i]; $('#edu-title').textContent=h.nome; $('#edu-body').innerHTML=`<p><strong>Local:</strong> ${h.bairro}</p><p>Atividades sugeridas:</p><p>• Plantio colaborativo aos sábados</p><p>• Ponto de troca de mudas</p><p>• Mini-oficina de compostagem</p>`; open($('#modal-edu')); }
+      if(act==='ver'){ const h=getHortas()[i]; $('#edu-title').textContent=h.nome; $('#edu-body').innerHTML=`<p><strong>Local:</strong> ${h.bairro}</p><p>Atividades sugeridas:</p><p>• Plantio colaborativo aos sábados</p><p>• Ponto de troca de mudas</p><p>• Mini-oficina de compostagem</p>`; $('#nota-conteudo').value=''; open($('#modal-edu')); }
     });
 
     /* ========= Eventos ========= */
     const BASE_EVENTOS=[
       {id:'mutirao', titulo:'Mutirão de limpeza', desc:'Sábado, 9h, Parque Central. Traga luvas e energia!'},
       {id:'compostagem', titulo:'Oficina de compostagem', desc:'Domingo, 10h, Centro Cultural. Vagas limitadas.'},
-      {id:'feira-troca', titulo:'Feira de Trocas Sustentáveis', desc:'Domingo, 14h, Praça Verde.'}
+      {id:'feira-troca', titulo:'Feira de Trocas Sustentáveis', desc:'Domingo, 14h, Praça Verde.'},
+      {id:'plantio', titulo:'Plantio colaborativo', desc:'Sábado, 8h, Horta Comunitária do Bairro.'}
     ];
     function getInscr(){ try{return JSON.parse(localStorage.getItem(KEYS.inscr)||'[]');}catch{return[];} }
     function setInscr(arr){ localStorage.setItem(KEYS.inscr, JSON.stringify(arr)); renderInscricoes(); }
@@ -674,7 +846,7 @@
     });
 
     /* ========= Desafios / Gamificação ========= */
-    const DESAFIOS=[{id:'d1', titulo:'Separar resíduos por 3 dias', xp:20}, {id:'d2', titulo:'Iniciar uma composteira', xp:40}, {id:'d3', titulo:'Plantar 3 mudas', xp:30}];
+    const DESAFIOS=[{id:'d1', titulo:'Separar resíduos por 3 dias', xp:20}, {id:'d2', titulo:'Iniciar uma composteira', xp:40}, {id:'d3', titulo:'Plantar 3 mudas', xp:30}, {id:'d4', titulo:'Concluir 3 conteúdos', xp:30}];
     function getMetas(){ try{return JSON.parse(localStorage.getItem(KEYS.metas)||'{}');}catch{return{};} }
     function setMetas(v){ localStorage.setItem(KEYS.metas, JSON.stringify(v)); }
     function getXP(){ return +(localStorage.getItem(KEYS.xp)||0); }
@@ -733,9 +905,6 @@
     }
 
     /* ========= Salvos ========= */
-    function getSalvos(){ try{return JSON.parse(localStorage.getItem(KEYS.salvos)||'[]');}catch{return[];} }
-    function setSalvos(v){ localStorage.setItem(KEYS.salvos, JSON.stringify(v)); }
-    function toggleSalvar(id){ const s=getSalvos(); const i=s.indexOf(id); if(i>=0) s.splice(i,1); else s.push(id); setSalvos(s); }
     function renderSalvos(){
       const wrap=$('#lista-salvos'); const s=getSalvos();
       if(s.length===0){ wrap.innerHTML='<div class="empty">Você ainda não salvou conteúdos.</div>'; return; }
@@ -744,13 +913,17 @@
         const c=edu.find(x=>x.id===id); if(!c) return;
         const item=document.createElement('div'); item.className='item';
         item.innerHTML=`<div><strong>${c.titulo}</strong><br/><small>${c.desc}</small></div>
-          <button class="btn btn-ghost" data-unsave="${c.id}"><i class="ri-bookmark-3-line"></i> Remover</button>`;
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" data-open="${c.id}"><i class="ri-book-open-line"></i> Abrir</button>
+            <button class="btn btn-ghost" data-unsave="${c.id}"><i class="ri-bookmark-3-line"></i> Remover</button>
+          </div>`;
+        item.querySelector('[data-open]').addEventListener('click',()=>openEdu(c.id));
         wrap.appendChild(item);
       });
     }
     $('#lista-salvos').addEventListener('click', (e)=>{
       const btn=e.target.closest('[data-unsave]'); if(!btn) return;
-      toggleSalvar(btn.getAttribute('data-unsave')); renderSalvos(); renderConteudos($('#busca').value);
+      toggleSalvar(btn.getAttribute('data-unsave')); renderSalvos(); renderConteudos();
     });
 
     /* ========= Notificações ========= */
@@ -763,8 +936,21 @@
       wrap.innerHTML = arr.map(n=>`<div class="item"><div><strong>${n.tipo==='evento'?'Evento':'Aviso'}</strong><br/><small>${n.msg}</small></div><button class="btn btn-ghost" data-del="${n.id}"><i class="ri-close-line"></i></button></div>`).join('');
     }
     $('#view-notifs').addEventListener('click', (e)=>{
-      const btn=e.target.closest('[data-del]'); if(!btn) return;
-      const id=+btn.getAttribute('data-del'); const arr=getNotifs().filter(n=>n.id!==id); setNotifs(arr); renderNotifs();
+      const btn=e.target.closest('[data-del]'); if(!btn) return; const id=+btn.getAttribute('data-del');
+      const arr=getNotifs().filter(n=>n.id!==id); setNotifs(arr); renderNotifs();
+    });
+
+    /* ========= Ações rápidas do Dashboard ========= */
+    $('#qa-horta').addEventListener('click', ()=>{ selectTab('conecte'); $('#form-horta input[name=nome]').focus(); });
+    $('#qa-conteudo').addEventListener('click', ()=>{ selectTab('explore'); $('#busca').focus(); });
+    $('#qa-eventos').addEventListener('click', ()=>{ selectTab('eventos'); });
+
+    /* ========= Atalhos de teclado ========= */
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='/' && document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA'){ e.preventDefault(); selectTab('explore'); $('#busca').focus(); }
+      if(e.key.toLowerCase()==='t'){ toggleTheme(); }
+      if(e.key.toLowerCase()==='p'){ $('#btn-perfil').click(); }
+      if(e.key.toLowerCase()==='n'){ selectTab('notifs'); }
     });
 
     /* ========= Inicialização ========= */
@@ -781,6 +967,7 @@
     }
     function renderEventosProx(){ renderInscricoes(); }
     function renderAll(){ renderPublicSmoothScroll(); renderEventosProx(); }
+
     function renderAndRoute(){
       const theme=localStorage.getItem(KEYS.theme)||'light'; setTheme(theme);
       const session=localStorage.getItem(KEYS.session)==='1'; if(session) showApp(); else showSite();
